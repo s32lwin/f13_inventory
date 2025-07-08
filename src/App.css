@@ -62,23 +62,54 @@ body {
   font-weight: bold;
 }
 
-.dashboard-container {
-  max-width: 600px;
-  margin: 50px auto;
-  padding: 2rem;
-  background: #f5f5f5;
-  border-radius: 10px;
-  text-align: center;
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #222;
+  color: white;
+  padding: 1rem 2rem;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
-.dashboard-container h2 {
-  color: #333;
+
+.dashboard-title {
+  font-size: 1.5rem;
+  font-weight: bold;
 }
-.dashboard-container button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  background: #007bff;
-  color: #fff;
+
+.dashboard-user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logout-button {
+  background: #e63946;
+  color: white;
   border: none;
-  border-radius: 5px;
+  padding: 0.4rem 1rem;
   cursor: pointer;
+  border-radius: 4px;
+}
+
+.dashboard-body {
+  padding: 6rem 2rem 2rem; /* Top padding to avoid overlap */
+  max-width: 1000px;
+  margin: auto;
+}
+
+.dashboard-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.dashboard-actions input {
+  padding: 0.5rem;
+  flex: 1;
 }
