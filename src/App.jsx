@@ -5,6 +5,7 @@ import Login from './pages/login';
 import Signup from './pages/signup';
 import Confirm from './pages/confirm';
 import Dashboard from './pages/dashboard';
+import AddItem from './pages/additem';
 
 import './App.css';
 
@@ -18,7 +19,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/confirm" element={<Confirm />} />
         <Route path="/dashboard" element={<Dashboard />} />
-       
+       <Route path="/add-item" element={<AddItem />} />
 
 
       </Routes>
