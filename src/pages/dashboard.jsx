@@ -150,6 +150,9 @@ function Dashboard() {
             Reset
           </button>
         </div>
+         <button onClick={() => navigate('/sales-history')} style={{ padding: '8px 12px' }}>
+            📈 View Sales History
+    </button>
 
         {/* Table */}
         <table className="stock-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -189,6 +192,8 @@ function Dashboard() {
             )}
           </tbody>
         </table>
+
+       
       </div>
     </div>
   );

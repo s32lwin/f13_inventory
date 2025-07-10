@@ -6,6 +6,7 @@ import Confirm from './pages/confirm';
 import Dashboard from './pages/dashboard';
 import AddItem from './pages/additem';
 import EditItem from './pages/edititem';
+import SalesHistory from './pages/saleshistory';
 
 
 import './App.css';
@@ -28,6 +29,7 @@ function App() {
             path="/edit-item"
              element={user ? <EditItem /> : <Navigate to="/login" />}
         />
+        <Route path="/sales-history" element={<SalesHistory />} />
 
 
         {/* Protected Routes */}

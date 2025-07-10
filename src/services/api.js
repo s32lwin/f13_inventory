@@ -135,4 +135,31 @@ export async function deleteItem(itemId) {
     console.error(`Error deleting item ${itemId}:`, error);
     throw error;
   }
+
+
+}
+
+
+// ✅ Fetch sales history (with auth)
+export async function fetchSales() {
+  try {
+    const token = await getIdToken();
+
+    const response = await fetch(`${API_ENDPOINT}/sales`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `API error: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching sales history:', error);
+    throw error;
+  }
 }
