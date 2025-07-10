@@ -66,67 +66,108 @@ body {
   font-weight: bold;
 }
 
+/* App.css */
 
-.dashboard-container {
-  width: 100%;
-  max-width: 100%;
-  padding: 2rem;
-  box-sizing: border-box;
-  font-family: sans-serif;
-}
-
-.dashboard-header {
+/* Top black bar */
+.top-bar {
+  position: relative;
   display: flex;
+  align-items: center;
   justify-content: flex-end;
-  padding: 10px;
+  background: #1e1e1e;
+  color: #fff;
+  padding: 1rem 2rem;
 }
-
 
 .dashboard-title {
-  font-size: 1.5rem;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 2rem;
   font-weight: bold;
+  color: #fff;
 }
 
 .dashboard-user {
   display: flex;
   align-items: center;
   gap: 1rem;
+  font-weight: bold;
 }
 
 .logout-button {
-  background-color: crimson;
-  color: white;
-  padding: 6px 12px;
+  background: #e53935;
+  color: #fff;
   border: none;
+  padding: 0.5rem 1rem;
   cursor: pointer;
 }
 
+/* Body wrapper */
 .dashboard-body {
-  margin-top: 2rem;
+  padding: 2rem;
 }
 
+/* Action buttons and filters */
 .dashboard-actions {
-  margin: 1rem 0;
   display: flex;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
   align-items: center;
 }
 
-.stock-table {
-  overflow-x: auto;
+.dashboard-actions .primary-btn,
+.dashboard-actions .secondary-btn,
+.dashboard-actions .danger-btn {
+  border: none;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border-radius: 4px;
 }
 
+.dashboard-actions .primary-btn {
+  background: #007bff; color: #fff;
+}
+
+.dashboard-actions .secondary-btn {
+  background: #6c757d; color: #fff;
+}
+
+.dashboard-actions .danger-btn {
+  background: #dc3545; color: #fff;
+}
+
+.filter-input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  min-width: 120px;
+}
+
+.filter-input.small {
+  width: 80px;
+}
+
+/* Stock table */
 .stock-table {
-  margin-top: 1rem;
   width: 100%;
   border-collapse: collapse;
 }
 
 .stock-table th,
 .stock-table td {
-  border: 1px solid #ccc;
-  padding: 8px;
+  border: 1px solid #ddd;
+  padding: 0.75rem;
+  text-align: left;
 }
+
+.stock-table th {
+  background: #f8f9fa;
+}
+
 
 .add-item-container {
   max-width: 700px;

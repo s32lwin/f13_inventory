@@ -1,3 +1,4 @@
+// src/pages/dashboard.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CognitoUserPool } from 'amazon-cognito-identity-js';
@@ -5,7 +6,6 @@ import { poolData } from '../awsConfig';
 import { fetchItems, deleteItem } from '../services/api';
 
 const userPool = new CognitoUserPool(poolData);
-
 
 function Dashboard() {
   const [username, setUsername] = useState('');
@@ -15,25 +15,20 @@ function Dashboard() {
   const [priceMin, setPriceMin] = useState('');
   const [priceMax, setPriceMax] = useState('');
   const navigate = useNavigate();
-  
 
-  const handleEdit = (item) => {
-    navigate('/edit-item', { state: { item } });
-  };
-
-
+  // load user and stock
   useEffect(() => {
     const user = userPool.getCurrentUser();
     if (user) {
       user.getSession((err, session) => {
-        if (err || !session.isValid()) return;
-        user.getUserAttributes((err, attrs) => {
-          const emailAttr = attrs.find(a => a.getName() === 'email');
-          setUsername(emailAttr?.getValue());
-        });
+        if (!err && session.isValid()) {
+          user.getUserAttributes((_, attrs) => {
+            const emailAttr = attrs.find(a => a.getName() === 'email');
+            setUsername(emailAttr?.getValue());
+          });
+        }
       });
     }
-
     loadStock();
   }, []);
 
@@ -42,158 +37,120 @@ function Dashboard() {
       const data = await fetchItems();
       const items = Array.isArray(data) ? data : data.items || [];
       setStock(items);
-    } catch (e) {
-      console.error('Load error:', e);
+    } catch {
       setStock([]);
     }
   };
 
   const handleRemoveItem = async (itemId) => {
-    if (!window.confirm('Are you sure you want to remove this item?')) return;
-    try {
-      await deleteItem(itemId);
-      loadStock();
-    } catch (e) {
-      alert("Failed to remove item");
-    }
+    if (!window.confirm('Remove this item?')) return;
+    await deleteItem(itemId);
+    loadStock();
   };
 
+  // filters
   const filteredStock = stock.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory = categoryFilter === '' ||
-      (item.category && item.category.toLowerCase().includes(categoryFilter.toLowerCase()));
+    const nameMatch = item.name.toLowerCase().includes(search.toLowerCase());
+    const catMatch = !categoryFilter || (item.category || '').toLowerCase().includes(categoryFilter.toLowerCase());
     const price = parseFloat(item.price);
     const min = parseFloat(priceMin);
     const max = parseFloat(priceMax);
-    const matchesPrice = (isNaN(min) || price >= min) && (isNaN(max) || price <= max);
-
-    return matchesSearch && matchesCategory && matchesPrice;
+    const priceMatch = (isNaN(min) || price >= min) && (isNaN(max) || price <= max);
+    return nameMatch && catMatch && priceMatch;
   });
 
   return (
-    <div className="dashboard">
-      {/* Top Title Bar */}
-      <div className="top-bar" style={{ textAlign: 'center', padding: '20px 0', background: '#1e1e1e', color: '#fff' }}>
-        <h1>Inventory Dashboard</h1>
-      </div>
-
-      {/* User Header */}
-      <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 20px' }}>
-        <div><strong>Welcome,</strong> {username}</div>
-        <button
-          className="logout-button"
-          style={{ background: 'crimson', color: '#fff', border: 'none', padding: '6px 12px' }}
-          onClick={() => {
-            userPool.getCurrentUser()?.signOut();
-            navigate('/login');
-          }}
-        >
-          Logout
-        </button>
-      </div>
-
-      {/* Dashboard Body */}
-      <div className="dashboard-body" style={{ padding: '0 20px' }}>
-        <h2>Stock Overview</h2>
-        <p>Displays stock levels, filters, and alerts.</p>
-
-        {/* Filter Controls */}
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}>
+    <div className="dashboard-container">
+      {/* Top bar: title + user/logout */}
+      <div className="top-bar">
+        <h1 className="dashboard-title">Inventory Dashboard</h1>
+        <div className="dashboard-user">
+          {username}
           <button
-            onClick={() => navigate('/add-item')}
-            style={{ padding: '8px 16px', backgroundColor: '#007bff', color: '#fff', border: 'none' }}
+            className="logout-button"
+            onClick={() => {
+              userPool.getCurrentUser()?.signOut();
+              navigate('/login');
+            }}
           >
+            Logout
+          </button>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div className="dashboard-body">
+        <h2>Stock Overview</h2>
+        <div className="dashboard-actions">
+          <button onClick={() => navigate('/add-item')} className="primary-btn">
             ➕ Add Item
           </button>
-
+          <button onClick={() => navigate('/sales-history')} className="secondary-btn">
+            📈 View Sales History
+          </button>
           <input
             type="text"
-            placeholder="Search items..."
+            placeholder="Search items…"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{ padding: '6px', flex: 1, minWidth: '200px' }}
+            onChange={e => setSearch(e.target.value)}
+            className="filter-input"
           />
-
           <input
             type="text"
-            placeholder="Filter by category"
+            placeholder="Category…"
             value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            style={{ padding: '6px', flex: 1, minWidth: '180px' }}
+            onChange={e => setCategoryFilter(e.target.value)}
+            className="filter-input"
           />
-
           <input
             type="number"
             placeholder="Min Price"
             value={priceMin}
-            onChange={(e) => setPriceMin(e.target.value)}
-            style={{ padding: '6px', width: '100px' }}
+            onChange={e => setPriceMin(e.target.value)}
+            className="filter-input small"
           />
-
           <input
             type="number"
             placeholder="Max Price"
             value={priceMax}
-            onChange={(e) => setPriceMax(e.target.value)}
-            style={{ padding: '6px', width: '100px' }}
+            onChange={e => setPriceMax(e.target.value)}
+            className="filter-input small"
           />
-
-          <button
-            onClick={() => {
-              setSearch('');
-              setCategoryFilter('');
-              setPriceMin('');
-              setPriceMax('');
-            }}
-            style={{ padding: '6px 12px', background: '#6c757d', color: '#fff', border: 'none' }}
-          >
+          <button onClick={() => {
+            setSearch(''); setCategoryFilter(''); setPriceMin(''); setPriceMax('');
+          }} className="secondary-btn">
             Reset
           </button>
         </div>
-         <button onClick={() => navigate('/sales-history')} style={{ padding: '8px 12px' }}>
-            📈 View Sales History
-    </button>
 
-        {/* Table */}
-        <table className="stock-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table className="stock-table">
           <thead>
-            <tr style={{ background: '#f4f4f4' }}>
-              <th style={{ padding: '10px' }}>Item</th>
-              <th>Quantity</th>
-              <th>Category</th>
-              <th>Price</th>
-              <th>Status</th>
-              <th>Action</th>
+            <tr>
+              <th>Item</th><th>Qty</th><th>Category</th><th>Price</th><th>Status</th><th>Action</th>
             </tr>
           </thead>
           <tbody>
-            {filteredStock.length > 0 ? (
-              filteredStock.map((item) => (
-                <tr key={item.itemId}>
-                  <td style={{ padding: '8px' }}>{item.name}</td>
-                  <td>{item.quantity}</td>
-                  <td>{item.category || '-'}</td>
-                  <td>₹{item.price}</td>
-                  <td>{item.quantity < 10 ? '⚠️ Low Stock' : '✅ OK'}</td>
-                  <td>
-                  <button onClick={() => handleEdit(item)} style={{ marginRight: '10px' }}>
-                               Edit
-                </button>
-                   <button onClick={() => handleRemoveItem(item.itemId)} style={{ color: 'red' }}>
-                         Remove
-                       </button>
-                        </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="6" style={{ textAlign: 'center', padding: '10px' }}>No items found.</td>
+            {filteredStock.length ? filteredStock.map(item => (
+              <tr key={item.itemId}>
+                <td>{item.name}</td>
+                <td>{item.quantity}</td>
+                <td>{item.category || '–'}</td>
+                <td>₹{item.price}</td>
+                <td>{item.quantity < 10 ? '⚠️ Low' : '✅ OK'}</td>
+                <td>
+                  <button onClick={() => navigate('/edit-item', { state: { item }})} className="secondary-btn small">
+                    Edit
+                  </button>
+                  <button onClick={() => handleRemoveItem(item.itemId)} className="danger-btn small">
+                    Remove
+                  </button>
+                </td>
               </tr>
+            )) : (
+              <tr><td colSpan="6">No items found.</td></tr>
             )}
           </tbody>
         </table>
-
-       
       </div>
     </div>
   );
