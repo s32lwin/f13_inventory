@@ -1,19 +1,20 @@
-// src/pages/login.jsx
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   AuthenticationDetails,
   CognitoUserPool,
   CognitoUser
 } from 'amazon-cognito-identity-js';
 import { poolData } from '../awsConfig';
-import { Link, useNavigate } from 'react-router-dom'; // ✅ Add useNavigate
+import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/authcontext'; // ✅ import AuthContext
 
 const userPool = new CognitoUserPool(poolData);
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate(); // ✅ initialize
+  const navigate = useNavigate();
+  const { setUser } = useContext(AuthContext); // ✅ get setUser from context
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -30,8 +31,10 @@ function Login() {
 
     user.authenticateUser(authDetails, {
       onSuccess: (result) => {
-        console.log('Login success. Token:', result.getAccessToken().getJwtToken());
-        navigate('/dashboard'); // ✅ redirect to dashboard
+        console.log('✅ Login success. Token:', result.getIdToken().getJwtToken());
+
+        setUser(user); // ✅ Set user context — this keeps the user logged in
+        navigate('/dashboard'); // ✅ Redirect after login
       },
       onFailure: (err) => {
         alert(err.message || JSON.stringify(err));
