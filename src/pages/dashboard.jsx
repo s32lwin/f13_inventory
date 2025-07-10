@@ -6,11 +6,21 @@ import { fetchItems, deleteItem } from '../services/api';
 
 const userPool = new CognitoUserPool(poolData);
 
+
 function Dashboard() {
   const [username, setUsername] = useState('');
   const [stock, setStock] = useState([]);
   const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [priceMin, setPriceMin] = useState('');
+  const [priceMax, setPriceMax] = useState('');
   const navigate = useNavigate();
+  
+
+  const handleEdit = (item) => {
+    navigate('/edit-item', { state: { item } });
+  };
+
 
   useEffect(() => {
     const user = userPool.getCurrentUser();
@@ -48,9 +58,17 @@ function Dashboard() {
     }
   };
 
-  const filteredStock = stock.filter(item =>
-    item.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredStock = stock.filter(item => {
+    const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory = categoryFilter === '' ||
+      (item.category && item.category.toLowerCase().includes(categoryFilter.toLowerCase()));
+    const price = parseFloat(item.price);
+    const min = parseFloat(priceMin);
+    const max = parseFloat(priceMax);
+    const matchesPrice = (isNaN(min) || price >= min) && (isNaN(max) || price <= max);
+
+    return matchesSearch && matchesCategory && matchesPrice;
+  });
 
   return (
     <div className="dashboard">
@@ -62,7 +80,14 @@ function Dashboard() {
       {/* User Header */}
       <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 20px' }}>
         <div><strong>Welcome,</strong> {username}</div>
-        <button className="logout-button" style={{ background: 'crimson', color: '#fff', border: 'none', padding: '6px 12px' }}>
+        <button
+          className="logout-button"
+          style={{ background: 'crimson', color: '#fff', border: 'none', padding: '6px 12px' }}
+          onClick={() => {
+            userPool.getCurrentUser()?.signOut();
+            navigate('/login');
+          }}
+        >
           Logout
         </button>
       </div>
@@ -72,8 +97,8 @@ function Dashboard() {
         <h2>Stock Overview</h2>
         <p>Displays stock levels, filters, and alerts.</p>
 
-        {/* Actions */}
-        <div className="dashboard-actions" style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: '20px' }}>
+        {/* Filter Controls */}
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}>
           <button
             onClick={() => navigate('/add-item')}
             style={{ padding: '8px 16px', backgroundColor: '#007bff', color: '#fff', border: 'none' }}
@@ -86,8 +111,44 @@ function Dashboard() {
             placeholder="Search items..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{ marginLeft: 'auto', padding: '6px', flexGrow: 1, maxWidth: '300px' }}
+            style={{ padding: '6px', flex: 1, minWidth: '200px' }}
           />
+
+          <input
+            type="text"
+            placeholder="Filter by category"
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            style={{ padding: '6px', flex: 1, minWidth: '180px' }}
+          />
+
+          <input
+            type="number"
+            placeholder="Min Price"
+            value={priceMin}
+            onChange={(e) => setPriceMin(e.target.value)}
+            style={{ padding: '6px', width: '100px' }}
+          />
+
+          <input
+            type="number"
+            placeholder="Max Price"
+            value={priceMax}
+            onChange={(e) => setPriceMax(e.target.value)}
+            style={{ padding: '6px', width: '100px' }}
+          />
+
+          <button
+            onClick={() => {
+              setSearch('');
+              setCategoryFilter('');
+              setPriceMin('');
+              setPriceMax('');
+            }}
+            style={{ padding: '6px 12px', background: '#6c757d', color: '#fff', border: 'none' }}
+          >
+            Reset
+          </button>
         </div>
 
         {/* Table */}
@@ -97,6 +158,7 @@ function Dashboard() {
               <th style={{ padding: '10px' }}>Item</th>
               <th>Quantity</th>
               <th>Category</th>
+              <th>Price</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
@@ -108,17 +170,21 @@ function Dashboard() {
                   <td style={{ padding: '8px' }}>{item.name}</td>
                   <td>{item.quantity}</td>
                   <td>{item.category || '-'}</td>
+                  <td>₹{item.price}</td>
                   <td>{item.quantity < 10 ? '⚠️ Low Stock' : '✅ OK'}</td>
                   <td>
-                    <button onClick={() => handleRemoveItem(item.itemId)} style={{ color: 'red' }}>
-                      Remove
-                    </button>
-                  </td>
+                  <button onClick={() => handleEdit(item)} style={{ marginRight: '10px' }}>
+                               Edit
+                </button>
+                   <button onClick={() => handleRemoveItem(item.itemId)} style={{ color: 'red' }}>
+                         Remove
+                       </button>
+                        </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="5" style={{ textAlign: 'center', padding: '10px' }}>No items found.</td>
+                <td colSpan="6" style={{ textAlign: 'center', padding: '10px' }}>No items found.</td>
               </tr>
             )}
           </tbody>

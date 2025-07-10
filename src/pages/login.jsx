@@ -8,6 +8,7 @@ import { poolData } from '../awsConfig';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/authcontext'; // ✅ import AuthContext
 
+
 const userPool = new CognitoUserPool(poolData);
 
 function Login() {
@@ -33,8 +34,8 @@ function Login() {
       onSuccess: (result) => {
         console.log('✅ Login success. Token:', result.getIdToken().getJwtToken());
 
-        setUser(user); // ✅ Set user context — this keeps the user logged in
-        navigate('/dashboard'); // ✅ Redirect after login
+        setUser(user); // ✅ Keep user logged in
+        navigate('/dashboard'); // ✅ Go to dashboard
       },
       onFailure: (err) => {
         alert(err.message || JSON.stringify(err));
@@ -43,28 +44,30 @@ function Login() {
   };
 
   return (
-    <div className="auth-container">
-      <h2>Login</h2>
-      <form className="auth-form" onSubmit={handleLogin}>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          required
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          required
-        />
-        <button type="submit">Log In</button>
-      </form>
-      <p style={{ marginTop: '1rem' }}>
-        Don’t have an account? <Link to="/signup">Sign up</Link>
-      </p>
+    <div className="auth-wrapper">
+      <div className="auth-container">
+        <h2>Login</h2>
+        <form className="auth-form" onSubmit={handleLogin}>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            required
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            required
+          />
+          <button type="submit">Log In</button>
+        </form>
+        <p>
+          Don’t have an account? <Link to="/signup">Sign up</Link>
+        </p>
+      </div>
     </div>
   );
 }

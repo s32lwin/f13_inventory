@@ -5,6 +5,9 @@ import Signup from './pages/signup';
 import Confirm from './pages/confirm';
 import Dashboard from './pages/dashboard';
 import AddItem from './pages/additem';
+import EditItem from './pages/edititem';
+
+
 import './App.css';
 
 import { AuthContext } from './context/authcontext';
@@ -21,6 +24,11 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/confirm" element={<Confirm />} />
+         <Route
+            path="/edit-item"
+             element={user ? <EditItem /> : <Navigate to="/login" />}
+        />
+
 
         {/* Protected Routes */}
         <Route
@@ -32,6 +40,7 @@ function App() {
           element={user ? <AddItem /> : <Navigate to="/login" />}
         />
       </Routes>
+     
     </Router>
   );
 }
